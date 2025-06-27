@@ -18,7 +18,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen w-full bg-gray-50 flex flex-col items-center justify-center px-4">
+    <main className="min-h-screen w-full bg-gray-50 flex flex-col items-center px-4">
       <section className="w-full max-w-7xl flex flex-col items-center py-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-4 text-center">Solace Advocates</h1>
       </section>
@@ -26,7 +26,7 @@ export default function Home() {
         <div className="w-full p-4">
           <SearchBar advocates={advocates} setFilteredAdvocates={setFilteredAdvocates} />
         </div>
-        <div className="w-full p-4">
+        <div className="w-full">
           <AdvocateTable advocates={filteredAdvocates} />
         </div>
       </section>

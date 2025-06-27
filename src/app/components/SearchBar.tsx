@@ -6,8 +6,8 @@ export type Advocate = {
   city: string;
   degree: string;
   specialties: string[];
-  yearsOfExperience: string;
-  phoneNumber: string;
+  yearsOfExperience: number;
+  phoneNumber: number;
   id: string;
 };
 
@@ -22,18 +22,19 @@ export const SearchBar: React.FC<SearchBarProps> = ({ advocates, setFilteredAdvo
   const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.currentTarget.value;
     setSearchTerm(value);
-
+    const lowerCaseValue = value.toLowerCase();
     const filteredAdvocates = advocates.filter((advocate) => {
-      return (
-        advocate.firstName.includes(value) ||
-        advocate.lastName.includes(value) ||
-        advocate.city.includes(value) ||
-        advocate.degree.includes(value) ||
-        advocate.specialties.includes(value) ||
-        advocate.yearsOfExperience.includes(value)
-      );
+      const fields = [
+        advocate.firstName,
+        advocate.lastName,
+        advocate.city,
+        advocate.degree,
+        ...advocate.specialties,
+        advocate.yearsOfExperience.toString(),
+        advocate.phoneNumber.toString(),
+      ];
+      return fields.some((field) => field.toLowerCase().includes(lowerCaseValue));
     });
-
     setFilteredAdvocates(filteredAdvocates);
   };
 
