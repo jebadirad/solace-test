@@ -16,26 +16,31 @@ type SearchBarProps = {
   setFilteredAdvocates: (advocates: Advocate[]) => void;
 };
 
-export const SearchBar: React.FC<SearchBarProps> = ({ advocates, setFilteredAdvocates }) => {
+export const SearchBar = ({ advocates, setFilteredAdvocates }: SearchBarProps) => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.currentTarget.value;
+  const debounce = <T extends (...args: any[]) => any>(func: T, delay: number) => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    return (...args: Parameters<T>) => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        func(...args);
+      }, delay);
+    };
+  };
+
+  const debouncedSearch = React.useMemo(
+    () =>
+      debounce(async (value: string) => {
+        const data = await (await fetch(`/api/advocates?q=${value.toLowerCase()}&limit=10`)).json();
+        setFilteredAdvocates(data.data);
+      }, 250),
+    [setFilteredAdvocates],
+  );
+
+  const handleQueryChange = (value: string) => {
     setSearchTerm(value);
-    const lowerCaseValue = value.toLowerCase();
-    const filteredAdvocates = advocates.filter((advocate) => {
-      const fields = [
-        advocate.firstName,
-        advocate.lastName,
-        advocate.city,
-        advocate.degree,
-        ...advocate.specialties,
-        advocate.yearsOfExperience.toString(),
-        advocate.phoneNumber.toString(),
-      ];
-      return fields.some((field) => field.toLowerCase().includes(lowerCaseValue));
-    });
-    setFilteredAdvocates(filteredAdvocates);
+    debouncedSearch(value);
   };
 
   const handleResetSearch = () => {
@@ -53,7 +58,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ advocates, setFilteredAdvo
         <input
           className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#265b4e] transition w-64 text-sm"
           value={searchTerm}
-          onChange={handleQueryChange}
+          onChange={(e) => handleQueryChange(e.currentTarget.value)}
           placeholder="Type to search advocates..."
         />
         <button
